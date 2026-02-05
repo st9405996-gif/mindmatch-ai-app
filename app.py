@@ -1,89 +1,117 @@
 import streamlit as st
+import time
 from mindmatch_ai import MindMatchEngine
 
 engine = MindMatchEngine()
-st.set_page_config(page_title="OMNI Sovereign", layout="wide")
+st.set_page_config(page_title="OMNI Sovereign Ecosystem", layout="wide")
 
-# Force Dark Mode CSS
-st.markdown("""
+# --- GHOST PROTOCOL TOGGLE ---
+st.sidebar.title("🛡️ OMNI Sovereign")
+ghost_mode = st.sidebar.toggle("Activate Ghost Protocol")
+
+# CSS for Visibility and Theme
+if ghost_mode:
+    st.markdown("<style>.stApp { background-color: #000000; color: #00FF41 !important; }</style>", unsafe_allow_html=True)
+    accent = "#ff3131"
+else:
+    st.markdown("<style>.stApp { background-color: #0E1117; color: white; }</style>", unsafe_allow_html=True)
+    accent = "#3b82f6"
+
+st.markdown(f"""
     <style>
-    .stApp { background-color: #0E1117; color: white; }
-    .chat-bubble { background-color: #1c1f26; padding: 20px; border-radius: 15px; border-left: 5px solid #3b82f6; margin-top: 10px; }
-    .auth-card { background-color: #1c1f26; padding: 20px; border-radius: 15px; border: 1px solid #3b82f6; margin-top: 20px; }
-    label { color: #3b82f6 !important; font-weight: bold; }
+    .main-card {{ background-color: #1c1f26; padding: 20px; border-radius: 15px; border: 1px solid {accent}; margin-bottom: 10px; }}
+    .stButton>button {{ background-color: #1E3A8A; color: white; width: 100%; border-radius: 10px; }}
+    label, h1, h2, h3 {{ color: white !important; }}
     </style>
 """, unsafe_allow_html=True)
 
-# Session States
-if 'step' not in st.session_state: st.session_state.step = 0
+# --- SESSION STATE ---
 if 'auth' not in st.session_state: st.session_state.auth = False
+if 'step' not in st.session_state: st.session_state.step = 0
 
-# --- SIMPLE AUTH ---
+# --- 1. LOGIN / SIGNUP ---
 if not st.session_state.auth:
-    st.title("🛡️ OMNI Sovereign Login")
-    with st.container():
-        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-        st.text_input("Username / Email", key="user_login")
-        st.text_input("Password", type="password")
-        if st.button("Access Ecosystem"):
+    st.title("🛡️ OMNI Sovereign Access")
+    tab1, tab2 = st.tabs(["Login", "Sign Up"])
+    
+    with tab2:
+        st.markdown('<div class="main-card">', unsafe_allow_html=True)
+        role = st.radio("Join as:", ["User", "Therapist"], horizontal=True)
+        name = st.text_input("Full Name")
+        email = st.text_input("Email/ID")
+        pwd = st.text_input("Password", type="password")
+        if st.button("Create Identity"):
             st.session_state.auth = True
+            st.session_state.user = {"name": name, "role": role}
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-# --- MAIN FLOW ---
+    with tab1:
+        st.markdown('<div class="main-card">', unsafe_allow_html=True)
+        st.text_input("Username")
+        st.text_input("Password", type="password", key="l_pwd")
+        if st.button("Login"):
+            st.session_state.auth = True
+            st.session_state.user = {"name": "Verified User", "role": "User"}
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
+# --- 2. DASHBOARD ---
 else:
-    st.sidebar.title("🛡️ OMNI Sovereign")
+    user = st.session_state.user
+    st.sidebar.success(f"User: {user['name']}")
     if st.sidebar.button("Logout"):
         st.session_state.auth = False
         st.session_state.step = 0
         st.rerun()
 
-    # Step 0: Language-Adaptive Chat
-    if st.session_state.step == 0:
-        st.header("🧠 MindMatch AI Intake")
-        prompt = st.chat_input("Write your feelings here (English ya Hinglish)...")
+    if user['role'] == "Therapist":
+        st.header("👨‍⚕️ Clinician Revenue & Mesh Chat")
+        col_c, col_a = st.columns([2, 1])
+        with col_a:
+            st.subheader("Revenue Audit")
+            split = engine.get_revenue_split(150)
+            st.metric("Net Payout", f"${split['net']:.2f}")
+            st.json(split['breakdown'])
+        with col_c:
+            st.subheader("Client P2P Chat")
+            st.chat_input("Reply to client...")
+
+    else: # USER JOURNEY
+        st.header("🧠 MindMatch AI Clinical Journey")
         
-        if prompt:
-            st.markdown('<div class="chat-bubble">', unsafe_allow_html=True)
-            st.write(f"**You:** {prompt}")
-            response = engine.get_calming_msg(prompt)
-            st.write(f"**OMNI AI:** {response}")
-            st.markdown('</div>', unsafe_allow_html=True)
-            
-            st.write("---")
-            if st.button("Start Assessment / Assessment Shuru Karein ➡️"):
-                st.session_state.step = 1
+        if st.session_state.step == 0:
+            prompt = st.chat_input("Workload ya kisi aur maslay ke bare mein likhein...")
+            if prompt:
+                st.markdown(f'<div class="main-card"><b>You:</b> {prompt}<br><br><b>OMNI AI:</b> {engine.get_calming_msg(prompt)}</div>', unsafe_allow_html=True)
+                if st.button("Start Assessment ➡️"):
+                    st.session_state.step = 1
+                    st.rerun()
+
+        elif st.session_state.step == 1:
+            st.markdown('<div class="main-card">', unsafe_allow_html=True)
+            st.subheader("Clinical Matrix Assessment")
+            s1 = st.slider("Workload Stress", 1, 10, 5)
+            s2 = st.slider("Mood Level", 1, 10, 5)
+            if st.button("Analyze & Match"):
+                st.session_state.match = engine.match_logic(s1 + s2)
+                st.session_state.step = 2
                 st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
-    # Step 1: Clinical Matrix
-    elif st.session_state.step == 1:
-        st.header("📋 Clinical Assessment")
-        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
-        s1 = st.slider("Workload/Stress Level (1-10)", 1, 10, 5)
-        s2 = st.slider("Sleep/Rest Quality (1-10)", 1, 10, 5)
-        if st.button("Generate Sovereign Match"):
-            st.session_state.match = engine.match_logic(s1 + s2)
-            st.session_state.step = 2
-            st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
-
-    # Step 2: Match Result & P2P Chat
-    elif st.session_state.step == 2:
-        match = st.session_state.match
-        st.success("🎯 Match Found / Match Mil Gaya Hai!")
-        
-        col1, col2 = st.columns([1, 1])
-        with col1:
-            st.markdown(f"""
-            <div class="auth-card">
-                <h3>{match['name']}</h3>
-                <p><b>Expertise:</b> {match['degree']}</p>
-                <p><b>Match Score:</b> {match['match']}%</p>
-                <button style="width:100%; padding:10px; background:#1E3A8A; color:white; border:none; border-radius:5px;">Book Session</button>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with col2:
-            st.subheader("Secure P2P Chat")
-            st.write("Ab aap apne therapist se baat kar sakte hain.")
-            st.chat_input("Type a message to your therapist...")
+        elif st.session_state.step == 2:
+            match = st.session_state.match
+            st.success(f"Match Found: {match['name']}")
+            col_l, col_r = st.columns([1, 1])
+            with col_l:
+                st.markdown(f"""
+                <div class="main-card">
+                    <h3>{match['name']}</h3>
+                    <p>{match['degree']}</p>
+                    <p><b>Match:</b> {match['match']}%</p>
+                    <p><b>Rate:</b> ${match['rate']}</p>
+                </div>
+                """, unsafe_allow_html=True)
+            with col_r:
+                st.subheader("Direct Secure Chat")
+                st.chat_input("Message your therapist...")
