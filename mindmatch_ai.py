@@ -6,14 +6,23 @@ class MindMatchEngine:
         ]
 
     def get_calming_msg(self, text):
-        # Language Detection Logic (Simple keyword based)
-        hinglish_keywords = ['hai', 'mein', 'kya', 'kaise', 'zyada', 'pareshan', 'ho', 'rha']
-        is_hinglish = any(word in text.lower() for word in hinglish_keywords)
-
-        if is_hinglish:
-            return "Main samajh sakta hoon ke aap workload aur stress ki wajah se pareshan hain. OMNI AI aapke saath hai. Gehra saans lein. Kya hum behtar match ke liye assessment shuru karein?"
+        # Bilingual Detection
+        text_lower = text.lower()
+        hinglish = ['hai', 'mein', 'kya', 'kaise', 'zyada', 'pareshan', 'kaam', 'masla']
+        
+        if any(word in text_lower for word in hinglish):
+            return "Main samajh sakta hoon ke workload aur stress aapko pareshan kar raha hai. OMNI AI yahan hai. Gehra saans lein, hum mil kar behtar feel karenge. Kya main aapse assessment ke sawal pooch sakta hoon?"
         else:
-            return "I understand that you're feeling overwhelmed with your workload. OMNI AI is here for you. Take a deep breath. Shall we begin the assessment to find your ideal match?"
+            return "I can see that workload and stress are weighing on you. OMNI AI is here to support you. Take a deep breath. Shall we proceed with a clinical assessment?"
+
+    def get_revenue_split(self, amount):
+        # 20.5% Split (10.5% + 5% + 5%)
+        cut = 0.205
+        return {
+            "net": amount * (1 - cut),
+            "omni_fee": amount * cut,
+            "breakdown": {"Clinician": "10.5%", "Platform": "5.0%", "Service": "5.0%"}
+        }
 
     def match_logic(self, score):
         return self.providers[0] if score > 10 else self.providers[1]
