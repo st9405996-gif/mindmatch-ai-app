@@ -1,28 +1,24 @@
-import numpy as np
-
-class MindMatchAPI:
+class MindMatchEngine:
     def __init__(self):
-        # Aapka Hardcoded Revenue Model
-        self.dr_reg_fee = 149.99
-        self.total_cut_percent = 0.205 # 20.5%
-        self.splits = {
-            "Clinician Commission": 0.105, # 10.5%
-            "Platform Fee": 0.05,          # 5%
-            "Service Fee": 0.05            # 5%
+        # Database of Practitioners
+        self.providers = [
+            {"id": "P1", "name": "Dr. Sarah Ahmed", "degree": "PhD Clinical Psych", "license": "NY-9920", "rate": 150, "match": 98},
+            {"id": "P2", "name": "Dr. Rajesh Kumar", "degree": "MD Psychiatrist", "license": "CA-1102", "rate": 130, "match": 95}
+        ]
+
+    def get_revenue_breakdown(self, amount):
+        # Aapka Hardcoded 20.5% Model
+        total_cut = amount * 0.205
+        return {
+            "gross": amount,
+            "net_to_provider": amount - total_cut,
+            "omni_cut": total_cut,
+            "audit": {
+                "Clinician Network (10.5%)": amount * 0.105,
+                "Platform Ops (5%)": amount * 0.05,
+                "Clinical Service (5%)": amount * 0.05
+            }
         }
 
-    def calculate_revenue(self, session_price):
-        total_fee = session_price * self.total_cut_percent
-        breakdown = {k: session_price * v for k, v in self.splits.items()}
-        return {
-            "total_fee": total_fee,
-            "dr_payout": session_price - total_fee,
-            "breakdown": breakdown
-        }
-
-    def get_ai_insight(self):
-        return {
-            "acceleration": "2.08 sessions faster",
-            "roi": "3.27x",
-            "match_confidence": f"{np.random.randint(92, 99)}%"
-        }
+    def match_ai(self, score):
+        return self.providers[0] if score > 10 else self.providers[1]
