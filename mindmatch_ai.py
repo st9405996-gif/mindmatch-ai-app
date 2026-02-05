@@ -1,22 +1,20 @@
 class MindMatchEngine:
     def __init__(self):
         self.providers = [
-            {"id": "P1", "name": "Dr. Sarah Ahmed", "degree": "PhD Clinical Psych", "license": "NY-9920", "rate": 150, "match": 98},
-            {"id": "P2", "name": "Dr. Rajesh Kumar", "degree": "MD Psychiatrist", "license": "CA-1102", "rate": 130, "match": 95}
+            {"id": "P1", "name": "Dr. Sarah Ahmed", "degree": "PhD Clinical Psych", "rate": 150, "match": 98},
+            {"id": "P2", "name": "Dr. Rajesh Kumar", "degree": "MD Psychiatrist", "rate": 130, "match": 95}
         ]
 
-    def get_revenue_breakdown(self, amount):
-        total_cut = amount * 0.205
+    def get_calming_msg(self, text):
+        return "Main samajh sakta hoon ke aap mushkil waqt se guzar rahe hain. OMNI AI aapke saath hai. Gehra saans lein. Kya hum assessment shuru karein?"
+
+    def get_revenue_split(self, amount):
+        cut = 0.205
         return {
-            "gross": amount,
-            "net_to_provider": amount - total_cut,
-            "omni_cut": total_cut,
-            "audit": {
-                "Clinician Network (10.5%)": amount * 0.105,
-                "Platform Ops (5%)": amount * 0.05,
-                "Clinical Service (5%)": amount * 0.05
-            }
+            "net": amount * (1 - cut),
+            "omni_fee": amount * cut,
+            "breakdown": {"Clinician (10.5%)": amount*0.105, "Platform (5%)": amount*0.05, "Service (5%)": amount*0.05}
         }
 
-    def match_ai(self, score):
+    def match_logic(self, score):
         return self.providers[0] if score > 10 else self.providers[1]
