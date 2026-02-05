@@ -1,11 +1,13 @@
 class MindMatchEngine:
     def __init__(self):
+        # Database of Practitioners
         self.providers = [
             {"id": "P1", "name": "Dr. Sarah Ahmed", "degree": "PhD Clinical Psych", "rate": 150, "match": 98},
             {"id": "P2", "name": "Dr. Rajesh Kumar", "degree": "MD Psychiatrist", "rate": 130, "match": 95}
         ]
 
     def get_calming_msg(self, text):
+        # Yeh function name ab app.py se match karega
         return "Main samajh sakta hoon ke aap mushkil waqt se guzar rahe hain. OMNI AI aapke saath hai. Gehra saans lein. Kya hum assessment shuru karein?"
 
     def get_revenue_split(self, amount):
