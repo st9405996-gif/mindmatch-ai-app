@@ -4,110 +4,125 @@ from mindmatch_ai import MindMatchEngine
 
 engine = MindMatchEngine()
 
-# --- FORCING DARK THEME & CONTRAST ---
-st.set_page_config(page_title="OMNI Sovereign Ecosystem", layout="wide")
+# Force Dark Mode and High Contrast CSS
+st.set_page_config(page_title="OMNI Sovereign", layout="wide")
 
 st.markdown("""
     <style>
-    /* Main Background - Thoda Dark Grey taake white text dikhe */
-    .stApp { background-color: #121417; color: #ffffff; }
-    
-    /* Input Labels ko hamesha white rakhega */
-    label { color: #ffffff !important; font-weight: bold; }
-    
-    /* Auth Container - Dark Blueish Background */
-    .auth-container { 
-        background-color: #1e2229; 
-        padding: 40px; 
-        border-radius: 20px; 
-        border: 1px solid #3d4452;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    /* Pure Dark Background for Visibility */
+    .stApp {
+        background-color: #0E1117 !important;
+        color: #FFFFFF !important;
     }
     
-    /* Tabs and Radio buttons styling */
-    .stTabs [data-baseweb="tab-list"] { background-color: transparent; }
-    .stTabs [data-baseweb="tab"] { color: #ffffff; }
+    /* Input Labels Visibility */
+    label, p, span, h1, h2, h3 {
+        color: #FFFFFF !important;
+    }
+
+    /* Auth Card Styling - Solid contrast */
+    .auth-card {
+        background-color: #1c1f26;
+        padding: 30px;
+        border-radius: 15px;
+        border: 2px solid #2d323e;
+        margin-bottom: 20px;
+    }
+
+    /* Fixing Input Box Colors */
+    input {
+        background-color: #262730 !important;
+        color: white !important;
+    }
     
-    /* Custom Buttons */
-    .stButton>button { 
-        border-radius: 12px; 
-        height: 3.5em; 
-        background-color: #1E3A8A; 
-        color: white; 
-        font-weight: bold; 
-        border: none;
+    /* Premium Button */
+    .stButton>button {
+        background-color: #1E3A8A !items;
+        color: white !important;
+        border-radius: 8px;
+        width: 100%;
+        border: 1px solid #3b82f6;
     }
     </style>
 """, unsafe_allow_html=True)
 
 # Sidebar
 st.sidebar.title("🛡️ OMNI Sovereign")
-if st.sidebar.toggle("Activate Ghost Protocol"):
-    st.markdown("<style>.stApp { background-color: #000000; color: #ff3131 !important; }</style>", unsafe_allow_html=True)
-    st.sidebar.error("GHOST MESH ENCRYPTION ACTIVE")
+ghost = st.sidebar.toggle("Activate Ghost Protocol")
+if ghost:
+    st.markdown("<style>.stApp { background-color: #000000 !important; color: #ff3131 !important; }</style>", unsafe_allow_html=True)
 
-# --- LOGIN / SIGN UP FLOW ---
+# --- MASTER FLOW ---
 if 'auth' not in st.session_state:
-    st.title("🌐 OMNI Global Access")
+    st.title("🌐 OMNI Global Access Portal")
     
-    # Separation Tabs
-    auth_tab1, auth_tab2 = st.tabs(["🔒 Secure Login", "📝 Create Account (Sign Up)"])
+    # Tabs for clear separation
+    t1, t2 = st.tabs(["🔒 Secure Login", "📝 Create Account"])
 
-    with auth_tab2:
-        st.subheader("Start Your Sovereign Journey")
-        role = st.radio("I want to register as a:", ["User / Client", "Therapist / Provider"], horizontal=True)
+    with t2:
+        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
+        role = st.selectbox("Register as:", ["User / Client", "Therapist / Provider"])
         
-        st.markdown('<div class="auth-container">', unsafe_allow_html=True)
         col1, col2 = st.columns(2)
-        
         if role == "Therapist / Provider":
             with col1:
-                t_name = st.text_input("Full Legal Name", placeholder="Dr. Adyan")
-                t_degree = st.selectbox("Degree", ["MD Psychiatrist", "PhD Clinical Psych", "PsyD", "LCSW"])
-                t_license = st.text_input("Medical License Number")
+                t_name = st.text_input("Full Name (Clinician)")
+                t_degree = st.selectbox("Highest Degree", ["MD", "PhD", "PsyD", "LCSW"])
             with col2:
-                t_exp = st.number_input("Years of Experience", 1, 50)
-                t_rate = st.number_input("Session Rate ($)", 150)
-                t_pwd = st.text_input("Create Sovereign Password", type="password", key="t_pass")
+                t_license = st.text_input("Medical License Number")
+                t_pwd = st.text_input("Create Password", type="password", key="reg_t_pwd")
             
-            st.info("💡 A mandatory $149.99 vetting fee is required for Clinical Matrix activation.")
-            if st.button("Complete Provider Registration"):
+            st.info("💡 Clinical Vetting Fee: $149.99 (Billed later)")
+            if st.button("Complete Provider Sign Up"):
                 st.session_state.auth = True
-                st.session_state.user = {"name": t_name, "role": "Therapist", "rate": t_rate}
+                st.session_state.user = {"name": t_name, "role": "Therapist"}
                 st.rerun()
-
+        
         else: # User Registration
             with col1:
                 u_name = st.text_input("Full Name")
                 u_email = st.text_input("Email Address")
             with col2:
                 u_dob = st.date_input("Date of Birth")
-                u_pwd = st.text_input("Password", type="password", key="u_pass")
+                u_pwd = st.text_input("Password", type="password", key="reg_u_pwd")
             
-            st.write("---")
-            st.multiselect("Main Focus Area", ["Anxiety", "Trauma", "Depression", "Work Stress"])
-            
-            if st.button("Initialize Sovereign Account"):
+            if st.button("Initialize Sovereign Identity"):
                 st.session_state.auth = True
                 st.session_state.user = {"name": u_name, "role": "User"}
                 st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-    with auth_tab1:
-        st.markdown('<div class="auth-container">', unsafe_allow_html=True)
-        st.subheader("Welcome Back")
-        st.text_input("Email / Sovereign ID")
-        st.text_input("Secure Password", type="password", key="l_pass")
-        if st.button("Enter Ecosystem"):
+    with t1:
+        st.markdown('<div class="auth-card">', unsafe_allow_html=True)
+        st.subheader("Sign In to Ecosystem")
+        st.text_input("Email / ID", key="log_email")
+        st.text_input("Password", type="password", key="log_pwd")
+        if st.button("Login"):
             st.session_state.auth = True
-            st.session_state.user = {"name": "Demo User", "role": "User"}
+            st.session_state.user = {"name": "User", "role": "User"}
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
 
-# --- DASHBOARDS ---
+# --- POST-LOGIN DASHBOARD ---
 else:
-    # (Baqi dashboard ka code wahi rahega jo pehle diya tha)
-    st.header(f"Welcome, {st.session_state.user['name']}")
-    if st.sidebar.button("Logout"):
+    user = st.session_state.user
+    st.sidebar.success(f"Verified: {user['name']}")
+    if st.sidebar.button("Log Out"):
         del st.session_state.auth
         st.rerun()
+
+    # Yahan Dashboard Content shuru hota hai
+    st.header(f"Welcome, {user['name']} 👋")
+    
+    if user['role'] == "Therapist":
+        st.subheader("Clinician Earnings & Audit")
+        # Dashboard metrics
+        c1, c2 = st.columns(2)
+        c1.metric("Revenue Split", "20.5%")
+        c2.metric("Network Status", "Sovereign Active")
+        
+    elif user['role'] == "User":
+        st.subheader("🧠 MindMatch AI Clinical Intake")
+        st.write("How can OMNI help you today?")
+        # AI Intake Flow...
+        st.chat_input("Tell us about your symptoms...")
