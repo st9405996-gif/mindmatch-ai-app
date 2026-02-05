@@ -1,22 +1,19 @@
 class MindMatchEngine:
     def __init__(self):
-        # Database of Practitioners
         self.providers = [
             {"id": "P1", "name": "Dr. Sarah Ahmed", "degree": "PhD Clinical Psych", "rate": 150, "match": 98},
             {"id": "P2", "name": "Dr. Rajesh Kumar", "degree": "MD Psychiatrist", "rate": 130, "match": 95}
         ]
 
     def get_calming_msg(self, text):
-        # Yeh function name ab app.py se match karega
-        return "Main samajh sakta hoon ke aap mushkil waqt se guzar rahe hain. OMNI AI aapke saath hai. Gehra saans lein. Kya hum assessment shuru karein?"
+        # Language Detection Logic (Simple keyword based)
+        hinglish_keywords = ['hai', 'mein', 'kya', 'kaise', 'zyada', 'pareshan', 'ho', 'rha']
+        is_hinglish = any(word in text.lower() for word in hinglish_keywords)
 
-    def get_revenue_split(self, amount):
-        cut = 0.205
-        return {
-            "net": amount * (1 - cut),
-            "omni_fee": amount * cut,
-            "breakdown": {"Clinician (10.5%)": amount*0.105, "Platform (5%)": amount*0.05, "Service (5%)": amount*0.05}
-        }
+        if is_hinglish:
+            return "Main samajh sakta hoon ke aap workload aur stress ki wajah se pareshan hain. OMNI AI aapke saath hai. Gehra saans lein. Kya hum behtar match ke liye assessment shuru karein?"
+        else:
+            return "I understand that you're feeling overwhelmed with your workload. OMNI AI is here for you. Take a deep breath. Shall we begin the assessment to find your ideal match?"
 
     def match_logic(self, score):
         return self.providers[0] if score > 10 else self.providers[1]
